@@ -1,0 +1,11 @@
+import pandas
+df = pandas.read_excel("Details.xlsx")
+print(df)
+print("===============")
+print("Number of rows and columns: " , df.shape)
+print("======================")
+print("Emails: ")
+print(df["Email"])
+print("==================")
+print("FirstName in ascending order: ")
+print(df.sort_values("FirstName"))
