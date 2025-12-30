@@ -1,28 +1,20 @@
-package nativeApp;
+package googleChrome;
 
 import static org.testng.Assert.assertEquals;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.PointerInput;
-import org.openqa.selenium.interactions.Sequence;
-import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
@@ -36,56 +28,53 @@ public class Activity3 {
 	
 	@BeforeClass
 	public void setup() throws MalformedURLException, URISyntaxException {
-		UiAutomator2Options caps=new UiAutomator2Options();
-		File appFile=new File("src/test/resources/ts-todo-list-v1.apk");
-		caps.setPlatformName("android");
-		caps.setAutomationName("UiAutomator2");
-		caps.setApp(appFile.getAbsolutePath());
-		caps.noReset();
-		URL serverurl=new URI("http://localhost:4723").toURL();
-		driver = new AndroidDriver(serverurl,caps);	
-		wait = new WebDriverWait(driver, Duration.ofSeconds(50));
+		UiAutomator2Options options = new UiAutomator2Options();
+		options.setPlatformName("android");
+		options.setAutomationName("UiAutomator2");
+		options.setAppPackage("com.android.chrome");
+		options.setAppActivity("com.google.android.apps.chrome.Main");
+		options.noReset();
+		URL serverURL = new URI("http://localhost:4723").toURL();
+		driver = new AndroidDriver(serverURL, options);
+		wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+		driver.get("https://training-support.net/webelements");
 	}
 	
 	@Test
-	public void todolistTest1() {
-		driver.findElement(AppiumBy.accessibilityId("Predicted app: To-Do List")).click();	
-		wait.until(ExpectedConditions.elementToBeClickable(
-				AppiumBy.xpath(
-						"(//android.widget.CheckBox[@resource-id=\"com.app.todolist:id/cb_task_done\"])[1]")));		
-		driver.findElement(AppiumBy.xpath(
-				"(//android.widget.CheckBox[@resource-id=\"com.app.todolist:id/cb_task_done\"])[1]"
-				)).click();
-		driver.findElement(AppiumBy.xpath(
-				"(//android.widget.CheckBox[@resource-id=\"com.app.todolist:id/cb_task_done\"])[2]"
-				)).click();
-		WebElement firsttask = wait.until(ExpectedConditions.presenceOfElementLocated(AppiumBy.androidUIAutomator("text(\"Activity 3\")")));
-		((JavascriptExecutor) driver).executeScript("mobile: longClickGesture", ImmutableMap.of("elementId", ((RemoteWebElement) firsttask).getId(), "duration", 2000));		
-		driver.findElement(AppiumBy.xpath("//android.widget.TextView[@resource-id=\"android:id/title\" and @text=\"Edit To-Do Task\"]")).click();
-		WebElement progress = driver.findElement(AppiumBy.id("com.app.todolist:id/sb_new_task_progress"));
-		int startX = progress.getLocation().getX();
-		int startY= progress.getLocation().getY();
-		int width = progress.getSize().getWidth();		
-		PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
-		Sequence dragToMiddle = new Sequence(finger,1);
-		int center = startX + (width/2);
-		dragToMiddle.addAction(finger.createPointerMove(Duration.ZERO,PointerInput.Origin.viewport(),startX,startY));
-		dragToMiddle.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
-		dragToMiddle.addAction(finger.createPointerMove(Duration.ofMillis(1000),PointerInput.Origin.viewport(),center,startY));
-		dragToMiddle.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));		
-		driver.perform(Collections.singletonList(dragToMiddle));
-		driver.findElement(AppiumBy.id("bt_new_task_ok")).click();
-		wait.until(ExpectedConditions.elementToBeClickable(
-				AppiumBy.accessibilityId("More options")));
-		driver.findElement(AppiumBy.accessibilityId("More options")).click();	
-		wait.until(ExpectedConditions.elementToBeClickable(
-				AppiumBy.xpath("//android.widget.TextView[contains(@text,'Completed tasks')]")));
-		driver.findElement(AppiumBy.xpath("//android.widget.TextView[contains(@text,'Completed tasks')]")).click();
-		wait.until(ExpectedConditions.presenceOfElementLocated(AppiumBy.androidUIAutomator("text(\"Activity 1\")")));
-		List<WebElement> activities = driver.findElements(AppiumBy.id("tv_exlv_task_name"));
-		// Print the number of images
-		System.out.println("List of Activities: " + activities.size());
-		assertEquals(activities.size(),2);
+	public void popupTest() {
+		wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.className("android.view.View")));
+		List<WebElement> textElements = driver.findElements(AppiumBy.className("android.view.View"));
+		String UiScrollable = "UiScrollable(UiSelector().scrollable(true))";
+		wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.androidUIAutomator(UiScrollable + ".scrollForward(65)")));
+		WebElement text = driver.findElement(AppiumBy
+				.androidUIAutomator(UiScrollable + ".scrollForward(25)"));
+		wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.xpath("//android.widget.TextView[@text=\"Popups\"]")));
+	  driver.findElement(AppiumBy.xpath(
+			  "//android.widget.TextView[@text=\"Popups\"]")).click();	 
+	  wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.xpath("//android.widget.Button[@resource-id=\"launcher\"]")));
+	  driver.findElement(AppiumBy.xpath(
+			  "//android.widget.Button[@resource-id=\"launcher\"]")).click();	
+	 wait.until(ExpectedConditions.elementToBeClickable( AppiumBy.androidUIAutomator("new UiSelector().text(\"Popups\")")));
+	  WebElement allow = new WebDriverWait(driver, Duration.ofSeconds(8))
+    .until(ExpectedConditions.elementToBeClickable(
+        AppiumBy.androidUIAutomator("new UiSelector().text(\"Popups\")")
+    ));
+	  allow.click();
+
+	  driver.findElement(AppiumBy.xpath(
+			  "//android.widget.EditText[@resource-id=\"username\"]"
+			  )).sendKeys("admin");
+	  driver.findElement(AppiumBy.xpath(
+			  "//android.widget.EditText[@resource-id=\"password\"]"
+			  )).sendKeys("password");
+	  driver.findElement(AppiumBy.xpath(
+			  "//android.widget.Button[@text=\"Submit\"]")).click();
+	  wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.xpath(
+			  "//android.widget.TextView[@text=\"Login Success!\"]")));
+	  String messageText = driver.findElement(AppiumBy.xpath(
+				"//android.widget.TextView[@text=\"Login Success!\"]")).getText();		
+		System.out.println(messageText);
+		assertEquals(messageText,"Login Success!");
 	}
 	@AfterClass
 	public void tearDown() {
